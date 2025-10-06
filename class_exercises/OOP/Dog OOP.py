@@ -6,12 +6,16 @@ class Animal:
         self.name = name
         self.age = age
 
-    def __repr__(self):
+    def __str__(self):
         return f'Name: {self.name}, age: {self.age}'
 
 
 class Dog(Animal):
 #INHERITANCE
+    species = "Canis familiaris"
+    def description(self):
+        return f"{self.name} is {self.age} years old"
+
     def bark(self):
         return "Woof!"
 
@@ -23,3 +27,10 @@ class Dog(Animal):
         else:
             return f"{self.name} is not interested in playing with {other}!"
 
+class Car:
+    def __init__(self, colour, mileage):
+        self.colour = colour
+        self.mileage = mileage
+
+    def __str__(self):
+        return f"The {self.colour} car has {self.mileage} miles"
