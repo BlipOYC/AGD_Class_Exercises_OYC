@@ -58,4 +58,4 @@ class Car:
 
 taylor = Cat("Taylor", 4)
 rufus = Dog("Rufus", 5)
-Fido = Dachshund("Fido", 4)
+fido = Dachshund("Fido", 4)
