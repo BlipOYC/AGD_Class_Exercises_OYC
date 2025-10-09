@@ -9,49 +9,52 @@ class ShoppingBasket:
 
     # A method to add an item to the shopping basket
     def addItem(self, item, quantity=1):
-        if item.stock_level >= quantity:
-            if quantity > 0:
-                # Check if the item is already in the shopping basket
-                if item in self.items:
-                    self.items[item] += quantity
-                    item.stock_level -= quantity
-                else:
-                    self.items[item] = quantity
-                    item.stock_level -= quantity
-            else:
-                print("Invalid operation - Quantity must be a positive number!")
-        else:
-            print(f"Not enough of {item.name} to add to basket, adding {item.stock_level} instead.")
-            self.items[item] = item.stock_level
+        if quantity <= 0:
+            print(f"Invalid operation - Quantity must be a positive number! No {item.name} added.")
+            return
+
+        if item.stock_level == 0:
+            print(f"No stock left for {item.name}.")
+            return
+
+        if quantity > item.stock_level:
+            print(f"Not enough of {item.name} to add {quantity}. Adding remaining {item.stock_level} instead.")
+            quantity = item.stock_level
+
+        self.items[item] = self.items.get(item, 0) + quantity
+        item.stock_level -= quantity
 
     # A method to remove an item from the shopping basket (or reduce it's quantity)
     def removeItem(self, item, quantity=0):
-        if quantity <= 0:
-            # Remove the item
-            self.items.pop(item, None)
+        #Easier on the eyes
+        """Removes an item from the shopping basket."""
+
+        if item not in self.items:
+            print(f"{item.name} not in basket.")
+            return
+
+        if quantity <= 0 or quantity >= self.items[item]:
+            print("Either quantity is smaller or equal to 0 or the quantity entered is more than currently in the basket}")
+            print(f"Removing all {item.name} from the basket")
+            item.stock_level += self.items[item]
+            self.items.pop(item)
         else:
-            if item in self.items:
-                if quantity < self.items[item]:
-                    # Reduce the required quantity for this item
-                    self.items[item] -= quantity
-                    item.stock_level += quantity
-                else:
-                    # Remove the item
-                    item.stock_level += self.items[item]
-                    self.items.pop(item, None)
+            #Normal
+            self.items[item] -= quantity
+            item.stock_level += quantity
 
     # A method to update the quantity of an item from the shopping basket
     def updateItem(self, item, quantity):
-        if quantity > 0:
-            if item.stock_level >= quantity:
-                self.items[item] = quantity
-                item.stock_level -= quantity
-            else:
-                print(f"There is only {item.stock_level} {item.name}(s) left, adding them all to basket.")
-                self.items[item] = item.stock_level
+        if item not in self.items:
+            print(f"{item.name} not in basket.")
+            return
+        if quantity <= 0:
+            self.removeItem(item) #Just remove the item
+            return
         else:
-            item.stock_level += self.items[item]
-            self.removeItem(item)
+            self.items[item] = quantity
+            return
+
 
     # A method to view/list the content of the basket.
     def view(self):
@@ -64,9 +67,9 @@ class ShoppingBasket:
             print(" + " + item.name + " - " + str(quantity) + " x £" + '{0:.2f}'.format(
                 item.price) + " = £" + '{0:.2f}'.format(cost))
             totalCost += cost
-        print("---------------------")
+        print("-------------------------")
         print(" = £" + '{0:.2f}'.format(totalCost))
-        print("---------------------")
+        print("-------------------------")
 
         # A method to calculate the total cost of the basket.
 
@@ -77,3 +80,8 @@ class ShoppingBasket:
             cost = quantity * item.price
             totalCost += cost
         return totalCost
+
+    def reset(self):
+        for item, quantity in self.items.items():
+            item.stock_level += quantity
+        self.items = {}
