@@ -10,8 +10,8 @@ class ShoppingBasket:
     # A method to add an item to the shopping basket
     def addItem(self, item, quantity=1):
         if quantity <= 0:
-            print(f"Invalid operation - Quantity must be a positive number! No {item.name} added.")
-            return
+            raise ValueError(f"Invalid operation - Quantity must be a positive number! No {item.name} added.")
+
 
         if item.stock_level == 0:
             print(f"No stock left for {item.name}.")
