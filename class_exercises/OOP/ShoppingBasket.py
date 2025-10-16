@@ -10,8 +10,7 @@ class ShoppingBasket:
     # A method to add an item to the shopping basket
     def addItem(self, item, quantity=1):
         if quantity <= 0:
-            print(f"Invalid operation - Quantity must be a positive number! No {item.name} added.")
-            return
+            raise ValueError("Quantity must be above 0. No items were added")
 
         if item.stock_level == 0:
             print(f"No stock left for {item.name}.")
@@ -30,8 +29,7 @@ class ShoppingBasket:
         """Removes an item from the shopping basket."""
 
         if item not in self.items:
-            print(f"{item.name} not in basket.")
-            return
+            raise ValueError(f"{item.name} not in basket.")
 
         if quantity <= 0 or quantity >= self.items[item]:
             print("Either quantity is smaller or equal to 0 or the quantity entered is more than currently in the basket}")
@@ -46,12 +44,14 @@ class ShoppingBasket:
     # A method to update the quantity of an item from the shopping basket
     def updateItem(self, item, quantity):
         if item not in self.items:
-            print(f"{item.name} not in basket.")
+            raise ValueError(f"{item.name} not in basket.")
             return
         if quantity <= 0:
             self.removeItem(item) #Just remove the item
             return
         else:
+            replenish = self.items[item] - quantity #the negative result you could get will naturally count for adding
+            item.stock_level += replenish
             self.items[item] = quantity
             return
 
