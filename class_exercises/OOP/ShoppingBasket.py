@@ -85,3 +85,4 @@ class ShoppingBasket:
         for item, quantity in self.items.items():
             item.stock_level += quantity
         self.items = {}
+
