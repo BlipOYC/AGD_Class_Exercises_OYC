@@ -4,5 +4,3 @@
 - Test-Driven Development (TDD)
 - Comprehension
 - Object-Oriented Programming (OOP)
-
-### More on OOP later
