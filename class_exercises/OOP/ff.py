@@ -7,7 +7,7 @@ def dice_sum(num_dice: int = 1, sides: int = 6):
 class Character:
 
     def __init__(self, name : str, skill: int, stamina : int):
-        self.name = name
+        self.name = name.title()
         self.skill = skill
         self.stamina = stamina
         self.roll = None
@@ -15,6 +15,9 @@ class Character:
 
     def __repr__(self):
         return f"Character('{self.name}', skill={self.skill}, stamina={self.stamina})"
+
+    def __str__(self):
+        return self.name
 
     @property
     def is_dead(self):
@@ -28,10 +31,10 @@ class Character:
             self.stamina = max(self.stamina, 1)
 
     def return_character_status(self):
-        return f"{self.name} has a skill {self.skill} and a stamina {self.stamina}"
+        return f"{self.name} has skill {self.skill} and stamina {self.stamina}"
 
     def return_roll_status(self):
-        return f"{self.name} has rolled a {self.roll} for {self.score} total points."
+        return f"{self.name} rolled {self.roll} for a total score of {self.score}"
 
     def find_score(self):
         self.roll = dice_sum(2)
@@ -58,15 +61,23 @@ class Character:
             case [False, False]:
                 print(f"{other.name} has scored a hit! {self.name} takes 2 damage!")
                 self.take_hit()
-                return "Loss"
+                return "lost"
         return None
 
 
 class PlayerCharacter(Character):
 
-    def __init__(self, name, skill, stamina, rnjesus):
+    def __init__(self, name, skill, stamina, luck):
         super().__init__(name, skill, stamina)
-        self.luck = rnjesus
+        self.luck = luck
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}('{self.name}', skill={self.skill}, stamina={self.stamina}, luck={self.luck})"
+
+    def test_luck(self):
+        self.luck -= 1
+        self.roll = dice_sum(2)
+        return self.roll <= self.luck+1
 
     @classmethod
     def generate_player_character(cls, name):
