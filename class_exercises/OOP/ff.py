@@ -50,13 +50,16 @@ class Character:
         other.find_score()
         match [self.score > other.score, self.score == other.score]:
             case [True, False]:
+                print(f"{self.name} has scored a hit! {self.name} takes 2 damage!")
                 other.take_hit()
-                return "win"
+                return "Win"
             case [False, True]:
+                print(f"It is a draw! {self.name} and {other.name} both take 1 damage")
                 self.take_hit(1)
                 other.take_hit(1)
-                return "draw"
+                return "Draw"
             case [False, False]:
+                print(f"{other.name} has scored a hit! {self.name} takes 2 damage!")
                 self.take_hit()
                 return "lost"
         return None
@@ -116,21 +119,11 @@ class Game:
         name, skill, stamina = character.name, character.skill, character.stamina
         return f"{name} has skill {skill} and stamina {stamina}"
 
-    def return_round_result(self):
-        msg = (self.player.return_roll_status() + "\n" +
-               self.opponent.return_roll_status() + "\n")
-        match self.round_result:
-            case "won":
-                msg += "Player won this round\n"
-            case "lost":
-                msg += "Player lost this round\n"
-            case _:
-                msg += "This round was a draw\n"
-        return msg
-
 hero = PlayerCharacter.generate_player_character("Hero")
 dragon = Character("Dragon", 10, 10)
 
+game = Game()
+game.choose_opponent()
 
 """
 while hero.stamina > 0 and dragon.stamina > 0:
