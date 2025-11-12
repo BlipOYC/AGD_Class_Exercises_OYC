@@ -112,18 +112,45 @@ class Game:
     def set_player(self, player_character):
         self.player = player_character
 
-    def resolve_fight_round(self):
+    def resolve_fight_round(self, flee):
+        fleeing = input("Would you like to flee? (Y for yes, anything else for no): ")
+        if fleeing.lower() == "y":
+            flee = True
+            return f"You have fled the battle against {self.opponent.name}."
         self.round_result = self.player.fight_round(self.opponent)
 
     def return_character_status(self, character):
         name, skill, stamina = character.name, character.skill, character.stamina
         return f"{name} has skill {skill} and stamina {stamina}"
 
-hero = PlayerCharacter.generate_player_character("Hero")
-dragon = Character("Dragon", 10, 10)
-
 game = Game()
-game.choose_opponent()
+flee = False
+print("Welcome to Fighting Fantasy. What is your name?")
+hero = PlayerCharacter.generate_player_character(input("Name: "))
+game.set_player(hero)
+print(f"Hello, esteemed {hero.name}.")
+print(game.return_character_status(hero))
+
+while True:
+    game.choose_opponent()
+    print(f"You will be fighting {game.opponent.name}.")
+    print(game.return_character_status(game.opponent))
+    while hero.stamina > 0 and game.opponent.stamina > 0:
+        holder = game.resolve_fight_round(game.opponent)
+        if holder:
+            print(holder)
+            break
+        print("Would you like to see the status of yourself, your opponent, or neither?")
+        see_status = input("(Y for yourself, O for opponent, anything else for neither): ")
+        if see_status.lower() == "y":
+            print(game.return_character_status(hero))
+        elif see_status.lower() == "o":
+            print(game.return_character_status(game.opponent))
+    if flee:
+        continue
+
+
+
 
 """
 while hero.stamina > 0 and dragon.stamina > 0:
