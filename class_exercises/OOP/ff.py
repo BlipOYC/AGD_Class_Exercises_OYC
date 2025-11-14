@@ -1,4 +1,32 @@
 import random
+from time import sleep
+p = print
+
+def print(txt, end="\n"):
+    for char in txt:
+        p(char, end='')
+        sleep(0.025)
+    p("", end=end)
+    
+print("Before we begin, on a scale from 0 to 10, how fast would you like the text speed to be: ", end="")
+while True:
+    try:
+        choice = float(input())
+        sleep_time = 0.1 - (0.01 * choice)
+        def print(txt, end="\n"):
+            for char in txt:
+                p(char, end='')
+                sleep(sleep_time)
+            p("", end=end)
+        print("Is this ok? (Y for yes, anything else for no) ", end="")
+        if input().lower() == "y":
+            print("Great\n\n")
+            break
+        else:
+            print("How fast would you like the text speed to be? ", end="")
+    except:
+        print("Invalid option, please enter a numerical answer")
+
 
 def dice_sum(num_dice: int = 1, sides: int = 6):
     """returns the sum of num_dice dice, each with side sides"""
@@ -42,7 +70,14 @@ class Character:
         print(self.return_roll_status())
         return self.score
 
-    def take_hit(self, damage=2):
+    def take_hit(self, damage=2, c=True):
+        crit = False
+        if isinstance(self, PlayerCharacter) and c:
+            crit = random.randint(1, 100) <= self.luck
+            print(f"{self.name} has been crit for double damage!")
+            print(f"{self.name} now takes {damage} damage!")
+        if crit:
+            damage *= 2
         self.stamina = max(0, self.stamina-damage)
 
     def fight_round(self, other):
@@ -50,19 +85,18 @@ class Character:
         other.find_score()
         match [self.score > other.score, self.score == other.score]:
             case [True, False]:
-                print(f"{self.name} has scored a hit! {self.name} takes 2 damage!")
                 other.take_hit()
                 return "Win"
             case [False, True]:
-                print(f"It is a draw! {self.name} and {other.name} both take 1 damage")
-                self.take_hit(1)
-                other.take_hit(1)
+                self.take_hit(1, c=False)
+                other.take_hit(1, c=False)
                 return "Draw"
             case [False, False]:
-                print(f"{other.name} has scored a hit! {self.name} takes 2 damage!")
                 self.take_hit()
                 return "lost"
         return None
+
+
 
 
 class PlayerCharacter(Character):
@@ -112,18 +146,74 @@ class Game:
     def set_player(self, player_character):
         self.player = player_character
 
-    def resolve_fight_round(self):
+    def resolve_fight_round(self, flee):
+        print("Would you like to flee? (Y for yes, anything else for no): ", end="")
+        fleeing = input()
+        if fleeing.lower() == "y":
+            flee = True
+            return f"You have fled the battle against {self.opponent.name}."
         self.round_result = self.player.fight_round(self.opponent)
 
-    def return_character_status(self, character):
+    @staticmethod
+    def return_character_status(character):
         name, skill, stamina = character.name, character.skill, character.stamina
         return f"{name} has skill {skill} and stamina {stamina}"
 
-hero = PlayerCharacter.generate_player_character("Hero")
-dragon = Character("Dragon", 10, 10)
+    def return_round_result(self, other, result):
+        msg = self.player.return_roll_status() + "\n" + self.opponent.return_roll_status()
+        if result == "Win":
+            msg += f"{self.player.name} has scored a hit! {self.opponent.name} takes 2 damage!"
+        if result == "Draw":
+            msg += f"It is a draw! {self.player.name} and {self.opponent.name} both take 1 damage"
+        if result == "lost":
+            msg += f"{self.opponent.name} has scored a hit! {self.player.name} takes 2 damage!"
+        return msg
 
-game = Game()
-game.choose_opponent()
+class GameCLI:
+    def __init__(self):
+        self.game = Game()
+        self.run_game()
+        self.flee = False
+
+    def run_game(self):
+        print("Welcome to Fighting Fantasy. What is your name?\nName: ", end="")
+        self.game.set_player(PlayerCharacter.generate_player_character(input()))
+        print(f"Hello, esteemed {self.game.player.name}.")
+        print(self.game.return_character_status(self.game.player))
+        self.fight_battle()
+
+    def fight_opponent(self):
+        holder = self.game.resolve_fight_round(self.game.opponent)
+        if holder:
+            print(holder)
+            self.game.opponent.is_dead(True)
+            return
+        print("Would you like to see the status of yourself, your opponent, or neither?")
+        print("(Y for yourself, O for opponent, anything else for neither): ", end="")
+        see_status = input()
+        if see_status.lower() == "y":
+            print(game.return_character_status(self.game.player))
+        elif see_status.lower() == "o":
+            print(game.return_character_status(self.game.opponent))
+    
+    def fight_battle(self):
+        self.flee = False
+        while True:
+            self.game.choose_opponent()
+            print(f"You will be fighting {self.game.opponent.name}.")
+            print(self.game.return_character_status(self.game.opponent))
+            while self.game.player.stamina > 0 and self.game.opponent.stamina > 0:
+                print(self.game.return_round_result(self.fight_opponent()))
+            if self.flee:
+                continue
+            else:
+                print(f"You have defeated {game.opponent.name}!\n\n")
+                self.game.player.stamina += 6
+                print("You have regained some stamina!")
+
+
+if __name__ == "__main__":
+    GameCLI()
 
 """
 while hero.stamina > 0 and dragon.stamina > 0:
