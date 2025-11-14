@@ -85,19 +85,18 @@ class Character:
         other.find_score()
         match [self.score > other.score, self.score == other.score]:
             case [True, False]:
-                print(f"{self.name} has scored a hit! {other.name} takes 2 damage!")
                 other.take_hit()
                 return "Win"
             case [False, True]:
-                print(f"It is a draw! {self.name} and {other.name} both take 1 damage")
                 self.take_hit(1, c=False)
                 other.take_hit(1, c=False)
                 return "Draw"
             case [False, False]:
-                print(f"{other.name} has scored a hit! {self.name} takes 2 damage!")
                 self.take_hit()
                 return "lost"
         return None
+
+
 
 
 class PlayerCharacter(Character):
@@ -155,17 +154,28 @@ class Game:
             return f"You have fled the battle against {self.opponent.name}."
         self.round_result = self.player.fight_round(self.opponent)
 
-    def return_character_status(self, character):
+    @staticmethod
+    def return_character_status(character):
         name, skill, stamina = character.name, character.skill, character.stamina
         return f"{name} has skill {skill} and stamina {stamina}"
+
+    def return_round_result(self, other, result):
+        msg = self.player.return_roll_status() + "\n" + self.opponent.return_roll_status()
+        if result == "Win":
+            msg += f"{self.player.name} has scored a hit! {self.opponent.name} takes 2 damage!"
+        if result == "Draw":
+            msg += f"It is a draw! {self.player.name} and {self.opponent.name} both take 1 damage"
+        if result == "lost":
+            msg += f"{self.opponent.name} has scored a hit! {self.player.name} takes 2 damage!"
+        return msg
 
 class GameCLI:
     def __init__(self):
         self.game = Game()
         self.run_game()
-                
+        self.flee = False
+
     def run_game(self):
-        flee = False
         print("Welcome to Fighting Fantasy. What is your name?\nName: ", end="")
         self.game.set_player(PlayerCharacter.generate_player_character(input()))
         print(f"Hello, esteemed {self.game.player.name}.")
@@ -187,16 +197,19 @@ class GameCLI:
             print(game.return_character_status(self.game.opponent))
     
     def fight_battle(self):
+        self.flee = False
         while True:
             self.game.choose_opponent()
             print(f"You will be fighting {self.game.opponent.name}.")
             print(self.game.return_character_status(self.game.opponent))
             while self.game.player.stamina > 0 and self.game.opponent.stamina > 0:
-                self.fight_opponent()
-            if flee:
+                print(self.game.return_round_result(self.fight_opponent()))
+            if self.flee:
                 continue
             else:
                 print(f"You have defeated {game.opponent.name}!\n\n")
+                self.game.player.stamina += 6
+                print("You have regained some stamina!")
 
 
 if __name__ == "__main__":
@@ -206,10 +219,6 @@ if __name__ == "__main__":
 while hero.stamina > 0 and dragon.stamina > 0:
     hero.fight_round(dragon)
 winner = [hero, dragon][hero.stamina == 0].name
-print(f"{winner} wins!")
-print(f"Result\n{hero.name}: {hero.stamina}\n{dragon.name}: {dragon.stamina}")
-"""
-
 print(f"{winner} wins!")
 print(f"Result\n{hero.name}: {hero.stamina}\n{dragon.name}: {dragon.stamina}")
 """
