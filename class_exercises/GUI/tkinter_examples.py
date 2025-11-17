@@ -14,17 +14,23 @@ class MainFrame(tk.Frame):
         self.config(bg="lemonchiffon")
 
     def place_widget(self):
-        self.txt.grid(column=0, row=0, padx=10, pady=10)
-        self.btn.grid(column=1, row=1, padx=10, pady=10)
-        self.sld.grid(column=2, row=2, padx=10, pady=10)
-        self.edt.grid(column=3, row=3, padx=10, pady=10)
+        settings = {"padx": 10, "pady": 10, "sticky": "nswe"}
+        self.txt.grid(column=0, row=0, **settings)
+        self.btn.grid(column=0, row=1, **settings)
+        self.sld.grid(column=1, row=0, **settings)
+        self.edt.grid(column=1, row=1, **settings)
+
+        self.columnconfigure(0, weight=2)
+        self.columnconfigure(1, weight=1)
+        self.rowconfigure(0, weight=1)
+        self.rowconfigure(1, weight=31)
 
 
 
 if __name__ == '__main__':
     root = tk.Tk()
-
     root.title("Tkinter Class Example")
+    root.geometry("500x500+100+100")
     main_frame = MainFrame(root)
     main_frame.pack(fill=tk.BOTH, expand=True)
     root.mainloop()
